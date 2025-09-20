@@ -8,10 +8,11 @@ const registerUser=async(req,res)=>{
         
         const {username,email,password}=req.body;
         
+        
         //CHECKING IS A USER EXISTS WITH THE SAME EMAIL
         const existedUser=await User.findOne({email});
         if(existedUser){
-            res.status(409).json({msg:"User with the same email already exist"})
+            return res.status(409).json({msg:"User with the same email already exist"})
         }
         
         const user=await User.create({
@@ -20,9 +21,9 @@ const registerUser=async(req,res)=>{
             password
         })
 
-        res.status(200).json({msg:"User registration successful"})
+        return res.status(200).json({msg:"User registration successful"})
     }catch(error){
-        res.status(500).json({"ERROR":"REGISTER USER FUNCTION NOT WORKING",error})
+        return res.status(500).json({"ERROR":"REGISTER USER FUNCTION NOT WORKING",error})
     }
 }
 
@@ -32,19 +33,21 @@ const loginUser=async(req,res)=>{
         const {email,password}=req.body;
         
         if(!email || !password){
-            res.status(400).json({msg:"Both email and password is required for logging in"})
+            return res.status(400).json({msg:"Both email and password is required for logging in"})
         }
 
         const user=await User.findOne({email:email});
 
         if(!user){
-            res.status(400).send({msg:"Login failed. User with this email does not exist"})
+            return res.status(400).send({msg:"Login failed. User with this email does not exist"})
         }
-
+        
         const isPasswordValid=await user.isPasswordCorrect(password);
+        
         if(!isPasswordValid){
-            res.status(400).json({msg:"Login failed. Password Invalid"})
+            return res.status(400).json({msg:"Login failed. Password Invalid"})
         }
+        
 
         const jwtToken=genrateJwtToken(user);
 
@@ -58,7 +61,7 @@ const loginUser=async(req,res)=>{
             httpOnly:true,
             secure:true
         }
-        res.status(200)
+        return res.status(200)
         .cookie("jwtToken",jwtToken,options)
         .json({msg:"User logged in successfuly"})
         

@@ -10,6 +10,10 @@ const patientSchema=mongoose.Schema({
     name:{
         type:String,
         required:true
+    },
+    doctors:{
+        type:[{type:Schema.Types.ObjectId,ref:"Doctor"}],
+        default:[]
     }
 })
 
@@ -46,7 +50,16 @@ userSchema.pre("save",async function(next){
 
 
 userSchema.methods.isPasswordCorrect=async function(password){
-    return await bcrypt.compare(password,this.password)
+    // console.log(password)
+    // console.log(this.password)
+    try{
+        const result=await bcrypt.compare(password,this.password)
+        // console.log(result)
+        return result
+
+    }catch(error){
+        console.log("bcrypt compare error",error)
+    }
 }
 
 

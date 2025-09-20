@@ -9,12 +9,12 @@ const addNewPatient=async(req,res)=>{
         const user=req.user;
 
         if(!patientName || !patientId){
-            res.status(400).json({msg:"Patient name and patient Id should be provided where the property are patientName and patientId"})
+            return res.status(400).json({msg:"Patient name and patient Id should be provided where the property are patientName and patientId"})
         }
 
         const patientList=user.patients;
         const alreadyPresent=patientList.filter((p)=>p.id==patientId)
-        console.log(alreadyPresent)
+        // console.log(alreadyPresent)
         if(alreadyPresent.length>0){
             return res.status(400).json({msg:"Patient of this id already exists"})
         }
@@ -22,10 +22,10 @@ const addNewPatient=async(req,res)=>{
         user.patients.push({name:patientName,id:patientId});
         await user.save()
 
-        res.status(200).json({msg:"Added a new Patient"})
+        return res.status(200).json({msg:"Added a new Patient"})
 
     }catch(error){
-        res.status(500).json({msg:"Add new patient controller not working",error})
+        return res.status(500).json({msg:"Add new patient controller not working",error})
     }
 }
 
@@ -39,9 +39,9 @@ const getAllPatients=async(req,res)=>{
             "Patient Id":patient.id,
             "Patient Name":patient.name
         }));
-        res.status(200).json({patients:patientList})
+        return res.status(200).json({patients:patientList})
     }catch(error){
-        res.status(500).json({msg:"Failed to fetch all the patients",error})
+        return res.status(500).json({msg:"Failed to fetch all the patients",error})
     }
 }
 
@@ -53,19 +53,22 @@ const getSpecificPatient=async(req,res)=>{
         const patientList=user.patients
         const specificPatient=patientList.find(p=>p.id==id);
         if(!specificPatient){
-            res.status(400).json({msg:"Patient of this id does not exist"});
+            return res.status(400).json({msg:"Patient of this id does not exist"});
         }
 
         const {_id,...patientWithoutId}=specificPatient.toObject()
-        res.status(200).json({"Patient":patientWithoutId})
+        return res.status(200).json({"Patient":patientWithoutId})
     }catch(error){
-        res.status(500).json({msg:"Get Specific function failed",error})
+        return res.status(500).json({msg:"Get Specific function failed",error})
     }
 }
 
 const updateSpecificPatient=async(req,res)=>{
     try{
         const {name}=req.body;
+        if(!name){
+            return res.status(400).json({msg:"Patient name must be prvided wiht the field as name"})
+        }
         const user=req.user;
         const {id}=req.params;
 
@@ -92,14 +95,14 @@ const deleteSpecificPatient=async(req,res)=>{
         const patientList=user.patients;
         const specificPatient=patientList.find((p)=>p.id==id);
         if(!specificPatient){
-            res.status(400).json({msg:"Patient of this id does not exist"})
+            return res.status(400).json({msg:"Patient of this id does not exist"})
         }
         
         user.patients.pull(specificPatient._id);
         await user.save();
-        res.status(200).json({msg:"Patient deleted successfully"})
+        return res.status(200).json({msg:"Patient deleted successfully"})
     }catch(error){
-        res.status(500).json({msg:"Delete specific function failed",error})
+        return res.status(500).json({msg:"Delete specific function failed",error})
     }
 }
 

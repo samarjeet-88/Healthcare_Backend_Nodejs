@@ -7,21 +7,21 @@ const addNewDoctor=async(req,res)=>{
         const {doctorId,doctorName}=req.body;
 
         if(!doctorId || !doctorName){
-            res.status(400).json({msg:"Doctor name and Doctor Id should be provided where the property are doctorName and doctorId"})
+            return res.status(400).json({msg:"Doctor name and Doctor Id should be provided where the property are doctorName and doctorId"})
         }
         const alredyExist=await Doctor.findOne({id:doctorId})
         if(alredyExist){
-            res.status(400).json({msg:"Doctor of this id already exist"})
+            return res.status(400).json({msg:"Doctor of this id already exist"})
         }
         const doctor=new Doctor({
-            doctorId:doctorId,
-            doctorName:doctorName
+            id:doctorId,
+            name:doctorName
         })
         await doctor.save()
 
-        res.status(200).json({msg:"Doctor created successfully"})
+        return res.status(200).json({msg:"Doctor created successfully"})
     }catch(error){
-        res.status(500).json({msg:"Add new doctor controller not working",error})
+        return res.status(500).json({msg:"Add new doctor controller not working",error})
     }
 }
 
@@ -29,14 +29,16 @@ const addNewDoctor=async(req,res)=>{
 const getAllDoctors=async(req,res)=>{
     try{
         const allDoctors=await Doctor.find();
-
+        if(!allDoctors){
+            return res.status(200).json({msg:"Currently there are no doctor"})
+        }
         const doctorsList=allDoctors.map((doc)=>({
             "Doctor Id":doc.id,
             "Doctor Name":doc.name
         }))
-        res.status(200).json({"All doctors: ":doctorsList})
+        return res.status(200).json({"All doctors: ":doctorsList})
     }catch(error){
-        res.status(500).json({msg:"Get Specific Doctor function failed",error})
+        return res.status(500).json({msg:"Get Specific Doctor function failed",error})
     }
 }
 
@@ -47,31 +49,32 @@ const getSpecificDoctor=async(req,res)=>{
 
         const doctor=await Doctor.findOne({id:id})
         if(!doctor){
-            res.status(400).json({msg:"Doctor of this id does not exist"})
+            return res.status(400).json({msg:"Doctor of this id does not exist"})
         }
-        res.status(200).json({doctor})
+        const {_id,...doctorWithout}=doctor.toObject()
+        return res.status(200).json({doctorWithout})
     }catch(error){
-        res.status(500).json({msg:"Get Specific Doctor function failed",error})
+        return res.status(500).json({msg:"Get Specific Doctor function failed",error})
     }
 }
 
 const updateSpecificDoctor=async(req,res)=>{
     try{
-        const {name}=req.body;
-        if(!name){
-            res.status(400).json({msg:"New Doctor name should be provided"})
+        const {doctorName}=req.body;
+        if(!doctorName){
+            return res.status(400).json({msg:"New Doctor name should be provided"})
         }
         const {id}=req.params;
         const doctor=await Doctor.findOne({id:id});
 
         if(!doctor){
-            res.status(400).json({msg:"Doctor of this id does not exist"})
+            return res.status(400).json({msg:"Doctor of this id does not exist"})
         }
-        doctor.name=name;
+        doctor.name=doctorName;
         await doctor.save();
-        res.status(200).json({msg:"Doctor name updated succesfully"})
+        return res.status(200).json({msg:"Doctor name updated succesfully"})
     }catch(error){
-        res.status(500).json({msg:"Update specific Doctor function failed",error})
+        return res.status(500).json({msg:"Update specific Doctor function failed",error})
     }
 }
 
@@ -81,12 +84,12 @@ const deleteSpecificDoctor=async(req,res)=>{
         const doctor=await Doctor.findOne({id:id});
 
         if(!doctor){
-            res.status(400).json({msg:"Doctor of this id does not exist"})
+            return res.status(400).json({msg:"Doctor of this id does not exist"})
         }
         await Doctor.deleteOne({id:id})
-        res.status(200).json({msg:"Doctor deleted succesfully"})
+        return res.status(200).json({msg:"Doctor deleted succesfully"})
     }catch(error){
-        res.status(500).json({msg:"Update specific Doctor function failed",error})
+        return res.status(500).json({msg:"Update specific Doctor function failed",error})
     }
 }
 

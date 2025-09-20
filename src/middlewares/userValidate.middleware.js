@@ -8,6 +8,10 @@ const registerSchema=z.object({
 
 
 export const registerValidateUser=(req,res,next)=>{
+    const {username,email,password}=req.body;
+    if(!username || !email || !password){
+            return res.status(400).json({msg:"Username, email and password is compulsory for registering"})
+        }
     const result=registerSchema.safeParse(req.body);
 
     if(!result.success){

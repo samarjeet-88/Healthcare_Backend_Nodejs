@@ -8,6 +8,6 @@ const router=Router()
 
 router.route("/doctors").post(verifyJWT,addNewDoctor).get(verifyJWT,getAllDoctors)
 
-router.route('/doctors/:id').get(getSpecificDoctor).put(updateSpecificDoctor).delete(deleteSpecificDoctor)
+router.route('/doctors/:id').get(verifyJWT,getSpecificDoctor).put(verifyJWT,updateSpecificDoctor).delete(verifyJWT,deleteSpecificDoctor)
 
 export default router
